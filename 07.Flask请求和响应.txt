@@ -1,0 +1,70 @@
+Flask请求和响应
+1. HTTP协议
+2. 请求对象request
+    封装了所有与请求相关的信息，
+    如：请求消息头，请求数据，请求路径，...
+    1. 在Flask中，请求信息被封装在request对象中
+	使用from flask import request调用
+    2. request 成员（常用）：
+	1. scheme ：获取请求方案（协议）
+	    如：scheme:http
+	2. method ：获取本次请求的请求方式
+	    如：method:GET
+	3. request.args: 获取使用get请求方式提交的数据
+	4. request.form: 获取使用post请求方式提交的数据
+	5. request.values: 获取GET和POST请求方式提交的数据（GET和POST通用）
+	6. request.cookies: 获取cookies中的信息
+	7. request.headers: 获取请求消息头的信息
+	    User-Agent
+	    referer 请求的源地址
+	8. request.path：获取请求的url地址
+	9. request.full_path: 获取请求的url完整路径
+	10. request.files: 获取用户上传的文件
+	11. request.url: 获取完整的请求地址
+    3. 获取请求提交的数据
+    	1. get 请求方式
+	    get请求数据是放在QueryString中的
+	    request.args 封装的就是get请求的数据，类型为字典
+	    request.args['key'] 获取key对应的值
+	    request.args.get('key') 获取同上
+	    request.args.getlist('key_list') 获取多选框等对于的列表值
+	    注意：
+	    	http://localhost:5000/form_do?uname=waiting&upwd=nihao&submit=%E6%8F%90%E4%BA%A4
+		http://主机：端口/请求路径?参数1=值1&参数2=值2&...
+	2. post 请求方式
+	    post请求数据是放在form中的
+	    request.form封装的就是post请求的数据，类型为字典
+	    request.form['key']
+	    request.form.get('key')
+	    request.form.getlist('key_list')     
+3. 响应对象
+    响应对象其实就是要响应给客户端的内容，可以是普通字符串，可以是模板，或则是重定向
+    1. 构建响应对象，再响应给客户端
+    	注意：不是直接响应字符串，而是响应对象
+	响应对象：可以包含响应的字符串，同时也可以实现其他的响应操作
+	在flask中，使用make_response()构建响应对象
+	    from flask import make_response
+	    ...
+	    resp = make_response('响应内容')
+	    #实现其他的响应操作，如：添加cookies,...
+	    return resp
+    2. 重定向
+    	1. 什么是重定向
+	    由服务端通知客户端重新向新的地址发送请求
+	2. 语法
+	    from flask import redirect
+	    ...
+	    resp = redirect('重定向地址')
+	    return resp
+4. 文件上传
+    1. 注意问题
+    	表单中提交方式必须为post
+	enctype属性必须设置为"multipart/form-data"
+    2. 服务器端
+    	1. 通过request.files获取上传的文件
+	    f = request.files['文件框name属性值']
+	2. 通过f.save(保存路径)将文件保存到指定目录处
+	   通过f.filename 获取文件的名称
+	   filename = f.filename
+	   f.save('static/'+filename)
+    注意：大量数据上传的时候（超大文件），就不能使用网页上传（主要是有于http协议不支持），需要使用单独的上传工具（C/S版的）

@@ -1,0 +1,70 @@
+路由（route）
+	1. 什么是路由
+		客户端将请求发送给Web服务器,Web服务器再将请求发送给flask程序实例，程序实例需要知道每个url请求要运行哪些代码，所以需要建立一个url到python函数的映射，处理url和函数之间的关系的程序就是路由，在Flask中，路由是通过@app.route装饰器来表示的
+	2. 路由的体现
+		1. 路由的基本表示
+			@app.route('/')
+			def index():
+				return "xxx"
+			@app.route('/login')
+			def login():
+				return "xxx"
+		2. 带参数的路由
+			http://localhost:5000/show1/sf.zh
+			http://localhost:5000/show1/wj.zh
+			http://localhost:5000/show1/zr.zh
+			1. 基本带参路由
+				@app.route('/show1/<name>')
+				def show1(name):	//在函数中 name 表示的就是地址栏上传递过来的数据
+					return "xxx"
+			2. 带多个参数的路由
+				http://localhost:5000/show2/sf.zh/85
+				http://localhost:5000/show2/wj.zh/18
+				http://localhost:5000/show2/ss.y/35
+				@app.route('/show2/<name>/<age>')
+				def show2(name,age):
+					return "xxx"
+			3. 指定参数类型的路由
+				@app.route('/show3/<name>/<int:age>')
+				def show3(name,age):
+					return "xxx"
+				注意：<int:age>:表示age参数是一个整型的数值而并非默认的字符串
+				Flask 中所支持的类型转换器
+					类型转换器			作用
+					缺省					字符串型（但不能有斜杠‘/’）
+					int: 				整型
+					float:				浮点型
+					path:				字符串型（允许有斜杠‘/’）
+		3. 多 URL 的路由匹配
+			允许在一个视图处理函数中设置多个url路由规则
+			@app.route('/')
+			@app.route('/index')
+			@app.route('/<int:page>')
+			def index(page=None):
+				return "xxx"
+		4. 路由中设置HTTP请求方法
+			Flask路由规则也允许设置对应的请求方法，只有将匹配上请求方法的路径交给视图处理函数去执行
+			@app.route('/post',methods=['GET','POST'])
+			def post():
+				return "xxx"
+			说明：只有'GET'和'POST'请求方式允许访问localhost:5000/post
+		5. URL 的反向解析
+			正向解析：程序自动解析，根据@app.route()中的访问路径来匹配处理函数
+			反向解析：通过视图处理函数的名称自动生成视图处理函数的访问路径
+
+			Flask 中提供了 url_for() 函数，用于反向解析 url
+			    第一个参数：指向函数名（通过@app.route()修饰的函数）
+			    后续的参数们：对应要构建的URL上的变量
+			    et:
+				    @app.route('/')
+				    def index():
+				        return "Index"
+				    @app.route('/show/<name>')
+				    def show(name):
+				        return "name:%s" % name
+				反向解析：
+					1. url_for('index') // 结果为：/
+					2. url_for('show',name='zsf')   //结果为：/show/zsf
+			特殊：
+				url_for('static',filename='style.css')
+				静态文件反向解析

@@ -1,0 +1,222 @@
+Flask 模型（Models）
+    1. 什么是模型
+        模型，是根据数据库中表的结构来创建出来的class.每一张表到编程语言中就是一个class,表中的每一个列，到编程语言中就是class中的一个属性
+    2. 创建 和 使用 模型 - ORM
+    	1. 什么是ORM
+	    ORM：Object Relational Mapping
+	    简称：ORM，O/RM，O/R Mapping
+	    中文：对象关系映射
+	2. ORM 的三大映射
+	    1. 数据表（table）到编程类（class）的映射
+	        数据库中的每一张表 对应 到编程语言中，都有一个类
+		在ORM中，允许将数据表 自动 生成一个类；也允许将类 自动 生成一张表
+	    2. 数据类型的映射
+	        将数据库表中的字段以及数据类型 对应到 编程语言中类的属性
+		在ORM中，允许将表中的字段和数据类型自动映射到编程语言中，也允许将类中的属性和类型映射到数据库表中
+	    3. 关系映射
+	        将数据库中表之间的关系对应到编程语言中类之间的关系
+		数据库表之间的关系
+		    一对一，一对多，多对多
+		    一对一：主外键关联，外键需要加唯一约束
+		    一对多：主外键关联
+		    多对多：连接查询
+		注意：Navicate for MySQL软件
+	3. ORM 的优点
+	    1. 提高了开发的效率
+	    2. 能够省略庞大的数据访问层，即便不用SQL编码也能完成对数据的CRUD操作
+    3. 定义模型
+        1. 数据库 和 框架 的配置
+	    1. 安装SQLAlchemy
+	    	sudo pip3 install sqlalchemy	
+		sudo pip3 install flask-sqlalchemy
+	    2. 创建数据库
+	        creata database flask default charset utf-8 collate utf8_general_ci;
+	    3. 配置数据库
+	        from flask import Flask
+		# 导入SQLAlchemy
+		from flask_sqlalchemy import SQLAlchemy
+
+		app = Flask.(__name__)
+
+		# 连接flask数据库：app.config['SQLAlCHEMY_DATABASE_URI']='mysql://username:pwd@host:port/dbname'
+		app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:123456@localhost:3306/flask'
+
+		# 创建SQLAlchemy 的实例db,表示程序正字使用的数据库，同时也获得了SQLAlchemy中的所有功能
+		db = SQLAlchemy(app)
+		
+		if __name__ == "__main__":
+		    app.run(debug=True)
+	2. 定义模型
+	    模型：数据库中的表在编程语言中的体现，其本质就是一个python的类，（可称为 模型类 或 实体类）
+	    类中的属性要与数据库表中的列相对应
+	    语法：
+	    	class MODELNAME(db.Model):
+		    __tablename__ = 'TABLENAME'
+		    COLUMN_NAME = db.Column(db.TYPE,OPTIONS)
+		    
+		    1. MODELNAME：定义模型类名称，根据表名设定
+		    2. TABLENAME：映射到数据库中表的名字
+		    3. COLUMN_NAME：属性名，映射到表中列的名字
+		    4. db.TYPE：映射到列的数据类型
+		    5. OPTIONS：列的选项
+		    注意：大写的均可被实际替换
+		db.TYPE 列类型如下：
+		    类型名		python类型		说明
+		    Integer		int			普通整数，32位
+		    SmallInteger	int			小范围整数，通常16位
+		    BigInteger		int			不限精度的整数
+		    Float		float			浮点数
+		    Numeric		decimal.Decimal		定点数
+		    String		str			变长字符串
+		    Text		str			变长字符串，优化
+		    Unicode		unicode			变长Unicode字符串
+		    UnicodeText		unicode			变长Unicode字符串，优化
+		    Boolean		bool			布尔值
+		    Date		datetime.date		日期
+		    Time		datetime.time		时间
+		    DateTime		datetime.datetime	日期和时间
+		OPTIONS 列选项
+		    选项名		说明
+		    primary_key		设置为True，则表示该列为主键（默认自增）
+		    unique		设置为True，则表示该列的值唯一（只能有一个为null）
+		    index		设置为True，则表示该列要创建索引
+		    nullable		设置为True，则表示该列允许为空
+		    default		为该列定义默认值
+    4. 数据库操作
+	1. 插入
+	    db.session.add(Models)
+	    # 提交事务
+	    db.session.commit()
+	    app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN']=True	// 设置自动提交事务
+	2. 查询
+	    1. 基于 db.session 进行查询
+	        1. db.session.query()
+		    该函数返回一个Query对象，类型为BaseQuery,包含了指定实体类对应的表中所有的数据
+		    该函数也可以接收多个参数，参数表示的是要查询哪个实体
+		2. 查询执行函数（查询字段）
+		    目的：在查询的基础上得到最终想要的结果
+		    语法：db.session.query(实体,...).查询执行函数()
+		    
+		    函数		说明
+		    all()		以列表的方式返回查询的所有结果
+		    first()		返回查询中的第一个结果，如果没有结果，返回None
+		    first_or_404()	返回查询中的第一个结果，如果没有结果，则终止并返回404
+		    count()		返回查询结果的数量
+		3. 查询过滤器函数（筛选）
+		    作用：在查询的基础上，筛选部分列出来
+		    语法：db.session.query().过滤器函数().查询执行函数()
+
+		    函数		说明
+		    filter()		按指定条件进行过滤（多表，单表，定值，不定值...）
+		    filter_by()		按等值条件进行过滤
+		    limit()		按限制行数获取
+		    order_by()		根据指定条件进行排序
+		    group_by()		根据指定条件进行分组
+		    详解：
+		    1. filter()
+		        1. 查询年龄大于30的Users的信息
+		            db.session.query(Users).filter(Users.age>30).all()
+			    注意：条件必须由 模型类.属性 来组成
+		        2. 查询年龄 大于 30 且 id 大于 6 的 Users 信息
+			    db.session.query(Users).filter(Users.age>30,Users.id>6).all()
+			3. 查询年龄 大于 30 或 id 大于 6 的 Users 信息
+			    db.session.query(Users).filter(or_(Users.age>30,Users.id>6)).all()
+			    注意：查询 或 的操作，要借助 or_(条件1，条件2，...),需要导入sqlalchemy.or_
+			4. 查询id=5 的Users信息
+			    db.session.query(Users).filter(Users.id==5).first()
+			    注意：等值判断时，必须使用"=="
+			5. 查询email中包含w的Users信息--模糊查询 like
+			    db.session.query(Users).filter(Users.email.like('%w%')).all()
+			    注意：需要使用 字段.like('%w%')
+			6. 查询id在[1，2，3]内的Users信息
+			    db.session.query(Users).filter(Users.id.in_([1,2,3])).all()
+			    注意：使用 字段.in_(列表)
+		    2. filter_by()
+		        1. 查询 id 等于 5 的Users信息
+			    db.session.query(Users).filter_by(id=5).first()
+			    注意：filter_by() 用于单表查询，条件中可以直接写id=?,此处不需要使用"=="
+		    3. limit()
+		        1. 在整个查询结果中获取满足条件的前5条信息
+			    db.session.query(Users).limit(5).all()
+			2. 获取从第1条后面开始查询3条信息
+			    db.session.query(Userd).limit(3).offset(1).all()
+		    4. order_by()
+		        1. 对Users表中所有的数据按id倒序age升序查看,使用 desc 倒序排序
+			    db.session.query(Users).order_by('id desc,age asc').all()
+		    5. groud_by()
+		        1. 按age分组查询
+			    db.session.query(Users.age).groud_by('age').all()
+	    2. 基于 Models 进行查询
+	        Models.query.查询过滤器(条件参数).查询执行函数()
+		et:
+		    查询id大于3的所有用户信息
+		    Users.query.filter(Users.id>3).all()
+	3. 删除
+	    1. 查询出要删除的实体
+	        user = db.session.query(Users).filter_by(id=5).first()
+	    2. 根据所提供的删除方法将信息删除
+	        db.session.delete(user)
+	4. 修改
+	    将 id 为 6 的用户的 username 改为 皮姐姐，age 改为25
+	    1. 查询出要修改的实体
+	        user = db.session.query(Users).filter_by(id=6).first()
+	    2. 修改实体内容
+	        user.username = '皮姐姐'
+		user.age = 25
+	    3. 保存修改后的实体内容
+	        db.session.add(user)
+	5. 关系映射
+	    1. 一对多
+	        语法实现
+		    1. 在'多'的实体中增加
+		        外键列名 = db.Column(db.Integer,db.ForeignKey('主表.主键'))
+		    2. 在'一'的实体中增加反向引用关系
+		        属性名 = db.relationship('多的实体类名',关系选项)
+		        属性名 = db.relationship('多的实体类名',backref='属性名',lazy='dynamic')
+			常用的关系选项：
+			选项名			说明
+			backref			在关系的另一个模型中添加反向引用关系
+			lazy			指定如何加载相关记录
+						select:首次访问时加载
+						immediate:源对象加载后立马加载关联数据
+						dynamic:不加载记录，但提供加载记录的查询
+						subquery:立即加载，但使用子查询
+						noload:永不加载
+			uselist			如果设置为False,则不使用列表，使用标量
+			secondary		指定多对多关系中关联表的名字
+	    2. 一对一
+	        1. 什么是一对一
+		    A表中的一条记录只能与B表中的一条记录关联
+		    B表中的一条记录只能与A表中的一条记录关联
+		2. 在数据库中的体现
+		    同一对多，在反向引用关系中，需设置uselist=False
+		3. SQLAlchemy
+		    class Wife(db.Model):
+		        ...
+			husband_id = db.Column(db.Integer,db.ForeignKey('husband.id'))
+			
+		    class Husband(db.Model):
+		        ...
+			wife = db.relationship('Wife',backref='husband',lazy='dynamic',uselist=False)
+	    3. 多对多
+	        1. 什么是多对多
+		    A表中的一条数据可以与B表中的任意多条数据关联
+		    B表中的一条数据也可以与B表中的任意多条数据关联
+		2. 实现
+		    需要添加第三张表C，与A，B表进行交互关联，不需要实体类
+		    1. 创建第三张表
+		        student_course = db.Table(
+			'student_course',	//在数据库中的表名
+			db.Column('id',db.Integer,primary_key=True),	//设置表主键
+			db.Column('student_id',db.Integer,db.ForeignKey('student.id')),	//设置student的外键
+			db.Column('course_id',db.Integer,db.ForeignKey('course.id'))	//设置course的外键
+			)
+		    2. 增加关联属性 以及 反向引用
+		        class Student(db.Model):
+			    ...
+			    courses = db.relationship(
+			    'Course',
+			    secondary='student_course',
+			    backref=db.backref('students',lazy='dynamic'),
+			    lazy='dynamic'
+			    )

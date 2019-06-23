@@ -1,0 +1,25 @@
+Flask 轻量级 Web 框架
+
+	1. 什么是 Flask ？
+		Flask 是一个基于Python,并且依赖于Jinja2模板引擎和Werkzeug WSGI服务的一个微型框架
+		WSGI：Web Server Gateway Interface（WEB服务网关接口）
+	2. Flask 的框架模式 -MTV
+		M ：Models，模型层，负责数据库建模
+		T ：Templates，模板层，用于处理用户显示的内容，如：html
+		V ：Views，视图层，处理与用户交互的部分内容，处理用户的请求并给出响应
+		注意：
+			经典三层结构：MVC
+			M ：Models，模型层，负责数据库建模
+			V ：Views，视图层，用于处理用户显示部分内容,如：html
+			C ：Controller，控制器，处理与用户交互的部分内容，处理用户的请求与响应
+	3. 安装Flask
+		1. 在线安装：sudo pip3 install flask
+		2. 查看已安装的flask版本
+			在python的交互模式中
+				>>>import flask
+				>>>flask.__version__
+		3. 官网：http://flask.pocoo.org/
+	4. 初始化
+		见代码Run.py
+		访问路径：http://localhost:5000/login:显示：‘登录页面’
+		访问路径：http://localhost:5000/register:显示：‘注册页面’

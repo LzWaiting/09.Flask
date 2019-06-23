@@ -1,0 +1,15 @@
+Flask修改配置
+    app = Flask(__name__,
+		template_folder='muban',
+		statis_url_path="/s",
+		static_folder='sta',
+		debug=True)
+    1. template_folder
+        设置模板的保存路径
+    2. static_url_path
+    	设置静态文件的访问路径（映射到Web中的访问路径）
+    3. static_folder
+    	设置静态文件的保存目录（映射到项目中的目录名称）
+    4. debug
+    	设置本地测试
+    注意：建议不改动原有
